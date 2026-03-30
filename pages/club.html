@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaClub - Club</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="logo"><a href="../index.html">MediaClub</a></div>
+        <nav class="nav-links" id="navLinks">
+            <a href="../index.html">Home</a>
+            <a href="clubs.html">Clubs</a>
+            <a href="profile.html">Profile</a>
+            <a href="#" id="notifLink">Notifications <span class="notif-badge" id="notifBadge"
+                    style="display:none;">0</span></a>
+        </nav>
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
+
+    <div class="notif-panel" id="notifPanel">
+        <h3>Notifications</h3>
+        <div class="notif-list" id="notifList">
+            <p class="notif-empty">No new notifications</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <!-- Club Header -->
+        <div class="club-header" id="clubHeader">
+            <div class="club-header-left">
+                <h1 id="clubTitle">Club Name</h1>
+                <span class="club-category-badge" id="clubCategoryBadge">📚 Book</span>
+            </div>
+            <div class="club-header-actions">
+                <button class="btn btn-secondary" id="joinBtn">Join</button>
+                <button class="btn btn-accent" id="eventsBtn">Events</button>
+            </div>
+        </div>
+
+        <div class="club-layout">
+            <!-- Left Column -->
+            <div class="club-main">
+                <!-- Members -->
+                <section class="club-section">
+                    <h3>Members</h3>
+                    <div class="members-row" id="membersList">
+                        <!-- Rendered by JS -->
+                    </div>
+                </section>
+
+                <!-- Discussion Board -->
+                <section class="club-section">
+                    <h3>Discussion Board</h3>
+                    <div class="post-composer" id="postComposer">
+                        <textarea id="newPostContent" placeholder="New Post..." rows="3" maxlength="1000"></textarea>
+                        <input type="text" id="newPostTitle" placeholder="Post title..." maxlength="100">
+                        <button class="btn btn-primary" id="submitPost">Post</button>
+                    </div>
+                    <div class="posts-list" id="postsList">
+                        <!-- Rendered by JS -->
+                    </div>
+                </section>
+
+                <!-- Media Recommendations -->
+                <section class="club-section">
+                    <h3>Recommendations</h3>
+                    <button class="btn btn-accent btn-sm" id="addRecommendationBtn">+ Add Recommendation</button>
+                    <div class="recommendations-list" id="recommendationsList">
+                        <!-- Rendered by JS -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column -->
+            <div class="club-sidebar">
+                <!-- Upcoming Events -->
+                <section class="club-section">
+                    <h3>Upcoming Events</h3>
+                    <button class="btn btn-accent btn-sm" id="createEventBtn">+ Create Event</button>
+                    <div class="events-list" id="eventsList">
+                        <!-- Rendered by JS -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Event Modal -->
+    <div class="modal-overlay" id="eventModal" style="display:none;">
+        <div class="modal">
+            <button class="modal-close" id="eventModalClose">&times;</button>
+            <h2>Create Event</h2>
+            <form id="eventForm">
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" required maxlength="80">
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" rows="3" maxlength="300"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="eventDate">Date</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventTime">Time</label>
+                    <input type="time" id="eventTime" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Create Event</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Recommendation Modal -->
+    <div class="modal-overlay" id="recModal" style="display:none;">
+        <div class="modal">
+            <button class="modal-close" id="recModalClose">&times;</button>
+            <h2>Add Recommendation</h2>
+            <form id="recForm">
+                <div class="form-group">
+                    <label for="recTitle">Title</label>
+                    <input type="text" id="recTitle" required maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="recDescription">Description</label>
+                    <textarea id="recDescription" rows="2" maxlength="300"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="recRating">Rating (1–5)</label>
+                    <select id="recRating">
+                        <option value="5">⭐⭐⭐⭐⭐</option>
+                        <option value="4">⭐⭐⭐⭐</option>
+                        <option value="3">⭐⭐⭐</option>
+                        <option value="2">⭐⭐</option>
+                        <option value="1">⭐</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Add</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div class="modal-overlay" id="commentModal" style="display:none;">
+        <div class="modal">
+            <button class="modal-close" id="commentModalClose">&times;</button>
+            <h2>Comments</h2>
+            <div class="comments-list" id="commentsList"></div>
+            <form id="commentForm">
+                <div class="form-group">
+                    <textarea id="commentContent" placeholder="Write a comment..." rows="2" required
+                        maxlength="500"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Comment</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/app.js" type="module"></script>
+</body>
+
+</html>

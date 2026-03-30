@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaClub - Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="logo"><a href="../index.html">MediaClub</a></div>
+        <nav class="nav-links" id="navLinks">
+            <a href="../index.html">Home</a>
+            <a href="clubs.html">Clubs</a>
+            <a href="profile.html" class="active">Profile</a>
+            <a href="#" id="notifLink">Notifications <span class="notif-badge" id="notifBadge"
+                    style="display:none;">0</span></a>
+        </nav>
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
+
+    <div class="notif-panel" id="notifPanel">
+        <h3>Notifications</h3>
+        <div class="notif-list" id="notifList">
+            <p class="notif-empty">No new notifications</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <!-- Profile Header -->
+        <div class="profile-header" id="profileHeader">
+            <div class="profile-info">
+                <div class="profile-avatar" id="profileAvatar">
+                    <span id="avatarInitial">U</span>
+                </div>
+                <h1 id="profileUsername">User Name</h1>
+            </div>
+            <div class="profile-actions">
+                <button class="btn btn-primary" id="editProfileBtn">Edit Profile</button>
+                <button class="btn btn-outline" id="logoutBtn">Log Out</button>
+            </div>
+        </div>
+
+        <div class="profile-layout">
+            <!-- Left Column -->
+            <div class="profile-main">
+                <!-- Favorite Media -->
+                <section class="profile-section">
+                    <h2>Favorite Media</h2>
+                    <div class="favorite-media" id="favoriteMedia">
+                        <div class="media-card" data-type="book">
+                            <div class="media-icon">📚</div>
+                            <h4>Book</h4>
+                            <p class="media-value" id="favBook">Not set</p>
+                        </div>
+                        <div class="media-card" data-type="game">
+                            <div class="media-icon">🎮</div>
+                            <h4>Game</h4>
+                            <p class="media-value" id="favGame">Not set</p>
+                        </div>
+                        <div class="media-card" data-type="movie">
+                            <div class="media-icon">🎬</div>
+                            <h4>Movie</h4>
+                            <p class="media-value" id="favMovie">Not set</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Activity Feed -->
+                <section class="profile-section">
+                    <h2>Activity Feed</h2>
+                    <div class="activity-feed" id="activityFeed">
+                        <p class="feed-empty">No recent activity</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column -->
+            <div class="profile-sidebar">
+                <section class="profile-section">
+                    <h2>My Clubs</h2>
+                    <div class="my-clubs-list" id="myClubsList">
+                        <p class="clubs-empty">You haven't joined any clubs yet.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="editProfileModal" style="display:none;">
+        <div class="modal">
+            <button class="modal-close" id="editProfileClose">&times;</button>
+            <h2>Edit Profile</h2>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label for="editUsername">Username</label>
+                    <input type="text" id="editUsername" required minlength="3" maxlength="30">
+                </div>
+                <div class="form-group">
+                    <label for="editAvatar">Avatar Color</label>
+                    <input type="color" id="editAvatar" value="#2D6CDF">
+                </div>
+                <div class="form-group">
+                    <label for="editFavBook">Favorite Book</label>
+                    <input type="text" id="editFavBook" placeholder="Search for a book..." maxlength="100">
+                    <div class="api-suggestions" id="bookSuggestions"></div>
+                </div>
+                <div class="form-group">
+                    <label for="editFavGame">Favorite Game</label>
+                    <input type="text" id="editFavGame" placeholder="Search for a game..." maxlength="100">
+                    <div class="api-suggestions" id="gameSuggestions"></div>
+                </div>
+                <div class="form-group">
+                    <label for="editFavMovie">Favorite Movie</label>
+                    <input type="text" id="editFavMovie" placeholder="Search for a movie..." maxlength="100">
+                    <div class="api-suggestions" id="movieSuggestions"></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/app.js" type="module"></script>
+</body>
+
+</html>
