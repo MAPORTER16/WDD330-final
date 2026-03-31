@@ -1,19 +1,28 @@
 /* ========================================
    MediaClub – Notifications Module
+   In-app notification system with badge
+   count and a slide-out panel.
    ======================================== */
 import { getCurrentUser } from './auth.js';
 import { escapeHTML, timeAgo } from './app.js';
 
 const NOTIF_KEY = 'mediaclub_notifications';
 
+/** @returns {Array<Object>} All notification objects from localStorage. */
 function getNotifications() {
     return JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]');
 }
 
+/** Persist notifications array. @param {Array<Object>} notifs */
 function saveNotifications(notifs) {
     localStorage.setItem(NOTIF_KEY, JSON.stringify(notifs));
 }
 
+/**
+ * Add a notification for a specific user.
+ * @param {string} userId - Target user ID.
+ * @param {string} message - Notification text.
+ */
 export function addNotification(userId, message) {
     const notifs = getNotifications();
     notifs.push({
@@ -28,6 +37,7 @@ export function addNotification(userId, message) {
     updateBadge();
 }
 
+/** Update the notification badge count in the navbar. */
 function updateBadge() {
     const user = getCurrentUser();
     if (!user) return;
@@ -43,6 +53,7 @@ function updateBadge() {
     }
 }
 
+/** Initialize the notifications panel and mark-as-read behaviour. */
 export function initNotifications() {
     const user = getCurrentUser();
     if (!user) return;
@@ -55,6 +66,7 @@ export function initNotifications() {
 
     if (notifLink) {
         notifLink.addEventListener('click', () => {
+            if (notifPanel) notifPanel.classList.toggle('open');
             renderNotifications();
             // Mark all as read
             const notifs = getNotifications();

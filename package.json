@@ -1,0 +1,24 @@
+{
+  "name": "wdd330-final",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MAPORTER16/WDD330-final.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MAPORTER16/WDD330-final/issues"
+  },
+  "homepage": "https://github.com/MAPORTER16/WDD330-final#readme",
+  "devDependencies": {
+    "eslint": "^8.57.1"
+  }
+}

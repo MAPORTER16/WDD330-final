@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="View and edit your MediaClub profile. Manage your favorite books, games, and movies, and see your club activity.">
+    <meta name="author" content="MediaClub">
     <title>MediaClub - Profile</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,9 +14,11 @@
         href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
+    <script>const t = localStorage.getItem('mediaclub_theme'); if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');</script>
 </head>
 
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <header class="navbar">
         <div class="logo"><a href="../index.html">MediaClub</a></div>
         <nav class="nav-links" id="navLinks">
@@ -23,19 +28,22 @@
             <a href="#" id="notifLink">Notifications <span class="notif-badge" id="notifBadge"
                     style="display:none;">0</span></a>
         </nav>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+            <span class="theme-icon" aria-hidden="true">🌙</span>
+        </button>
         <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
             <span></span><span></span><span></span>
         </button>
     </header>
 
-    <div class="notif-panel" id="notifPanel">
+    <aside class="notif-panel" id="notifPanel" role="complementary" aria-label="Notifications">
         <h3>Notifications</h3>
         <div class="notif-list" id="notifList">
             <p class="notif-empty">No new notifications</p>
         </div>
-    </div>
+    </aside>
 
-    <main class="container">
+    <main class="container" id="main-content">
         <!-- Profile Header -->
         <div class="profile-header" id="profileHeader">
             <div class="profile-info">
@@ -58,17 +66,17 @@
                     <h2>Favorite Media</h2>
                     <div class="favorite-media" id="favoriteMedia">
                         <div class="media-card" data-type="book">
-                            <div class="media-icon">📚</div>
+                            <div class="media-icon" aria-hidden="true">📚</div>
                             <h4>Book</h4>
                             <p class="media-value" id="favBook">Not set</p>
                         </div>
                         <div class="media-card" data-type="game">
-                            <div class="media-icon">🎮</div>
+                            <div class="media-icon" aria-hidden="true">🎮</div>
                             <h4>Game</h4>
                             <p class="media-value" id="favGame">Not set</p>
                         </div>
                         <div class="media-card" data-type="movie">
-                            <div class="media-icon">🎬</div>
+                            <div class="media-icon" aria-hidden="true">🎬</div>
                             <h4>Movie</h4>
                             <p class="media-value" id="favMovie">Not set</p>
                         </div>
@@ -97,10 +105,11 @@
     </main>
 
     <!-- Edit Profile Modal -->
-    <div class="modal-overlay" id="editProfileModal" style="display:none;">
+    <div class="modal-overlay" id="editProfileModal" style="display:none;" role="dialog" aria-modal="true"
+        aria-labelledby="editProfileTitle">
         <div class="modal">
-            <button class="modal-close" id="editProfileClose">&times;</button>
-            <h2>Edit Profile</h2>
+            <button class="modal-close" id="editProfileClose" aria-label="Close dialog">&times;</button>
+            <h2 id="editProfileTitle">Edit Profile</h2>
             <form id="editProfileForm">
                 <div class="form-group">
                     <label for="editUsername">Username</label>

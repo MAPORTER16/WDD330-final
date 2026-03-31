@@ -1,6 +1,7 @@
 /* ========================================
    MediaClub – Authentication Module
-   Uses localStorage for demo persistence
+   Handles user registration, login, logout,
+   and session management via localStorage.
    ======================================== */
 import { showToast, escapeHTML } from './app.js';
 
@@ -8,14 +9,21 @@ const USERS_KEY = 'mediaclub_users';
 const SESSION_KEY = 'mediaclub_session';
 
 // ---------- Storage Helpers ----------
+
+/** @returns {Array<Object>} All registered user objects from localStorage. */
 function getUsers() {
     return JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
 }
 
+/** Persist the users array to localStorage. @param {Array<Object>} users */
 function saveUsers(users) {
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
+/**
+ * Get the currently logged-in user from the session.
+ * @returns {Object|null} User object or null if not logged in.
+ */
 export function getCurrentUser() {
     const session = localStorage.getItem(SESSION_KEY);
     if (!session) return null;
@@ -24,6 +32,10 @@ export function getCurrentUser() {
     return users.find(u => u.id === userId) || null;
 }
 
+/**
+ * Update fields on the currently logged-in user record.
+ * @param {Object} updates - Key/value pairs to merge into the user object.
+ */
 export function updateCurrentUser(updates) {
     const user = getCurrentUser();
     if (!user) return;
@@ -34,20 +46,33 @@ export function updateCurrentUser(updates) {
     saveUsers(users);
 }
 
+/** Store the active session user ID. @param {string} userId */
 function setSession(userId) {
     localStorage.setItem(SESSION_KEY, JSON.stringify({ userId }));
 }
 
+/** Clear the active session (log out). */
 function clearSession() {
     localStorage.removeItem(SESSION_KEY);
 }
 
 // ---------- Validation ----------
+
+/**
+ * Basic email format validation.
+ * @param {string} email
+ * @returns {boolean}
+ */
 function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 // ---------- Init Auth UI ----------
+
+/**
+ * Initialize the authentication UI: show/hide auth modal,
+ * handle registration and login form submissions, and logout.
+ */
 export function initAuth() {
     const authModal = document.getElementById('authModal');
     const loginForm = document.getElementById('loginForm');
@@ -86,12 +111,33 @@ export function initAuth() {
         });
     }
 
-    // Close modal (only if logged in)
+    // Close modal (allow guests to explore)
     if (modalClose) {
         modalClose.addEventListener('click', () => {
-            if (getCurrentUser()) {
-                authModal.style.display = 'none';
-            }
+            authModal.style.display = 'none';
+        });
+    }
+
+    // Close modal when clicking on the overlay background
+    authModal.addEventListener('click', (e) => {
+        if (e.target === authModal) {
+            authModal.style.display = 'none';
+        }
+    });
+
+    // Continue as Guest buttons
+    const guestLoginBtn = document.getElementById('guestLoginBtn');
+    const guestRegisterBtn = document.getElementById('guestRegisterBtn');
+    if (guestLoginBtn) {
+        guestLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            authModal.style.display = 'none';
+        });
+    }
+    if (guestRegisterBtn) {
+        guestRegisterBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            authModal.style.display = 'none';
         });
     }
 
@@ -187,6 +233,7 @@ export function initAuth() {
     }
 }
 
+/** Append an error message paragraph inside a form. @param {HTMLFormElement} form @param {string} message */
 function appendError(form, message) {
     const p = document.createElement('p');
     p.className = 'form-error';
@@ -194,6 +241,7 @@ function appendError(form, message) {
     form.appendChild(p);
 }
 
+/** Update the navigation bar to show the logged-in user's name. @param {Object} user */
 function updateNavForUser(user) {
     // Update profile link text if needed
     const profileLinks = document.querySelectorAll('.nav-links a');
@@ -204,6 +252,10 @@ function updateNavForUser(user) {
     });
 }
 
+/**
+ * Ensure a user is logged in; show an error toast if not.
+ * @returns {Object|null} The current user object, or null.
+ */
 export function requireAuth() {
     const user = getCurrentUser();
     if (!user) {

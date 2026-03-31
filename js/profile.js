@@ -1,11 +1,15 @@
 /* ========================================
    MediaClub – Profile Module
+   Handles profile display, editing,
+   favorite media with live API search,
+   activity feed, and user club listing.
    ======================================== */
 import { showToast, escapeHTML } from './app.js';
-import { getCurrentUser, updateCurrentUser, requireAuth } from './auth.js';
+import { getCurrentUser, updateCurrentUser } from './auth.js';
 import { getClubs } from './clubs.js';
 import { searchBooks, searchGames, searchMovies } from './api.js';
 
+/** Initialize the profile page: render user data, clubs, activity, and edit modal. */
 export function initProfile() {
     const user = getCurrentUser();
     if (!user) return;
@@ -152,6 +156,13 @@ export function initProfile() {
 }
 
 // ---------- Media Search Helper ----------
+
+/**
+ * Wire up a text input to fetch API suggestions as the user types.
+ * @param {string} inputId - DOM ID of the text input.
+ * @param {string} suggestionsId - DOM ID of the suggestions container.
+ * @param {Function} searchFn - Async search function returning array of {title} objects.
+ */
 function setupMediaSearch(inputId, suggestionsId, searchFn) {
     const input = document.getElementById(inputId);
     const suggestionsEl = document.getElementById(suggestionsId);

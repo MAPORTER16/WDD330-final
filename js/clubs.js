@@ -1,25 +1,42 @@
 /* ========================================
    MediaClub – Clubs Module
+   Handles club CRUD, club detail page,
+   discussion posts, comments, events,
+   and media recommendations.
    ======================================== */
 import { showToast, escapeHTML, timeAgo, clubCardHTML, addCardListeners } from './app.js';
 import { getCurrentUser, updateCurrentUser, requireAuth } from './auth.js';
 import { addNotification } from './notifications.js';
+import { searchBooks, searchGames, searchMovies } from './api.js';
 
 const CLUBS_KEY = 'mediaclub_clubs';
 
 // ---------- Storage ----------
+
+/** @returns {Array<Object>} All club objects from localStorage. */
 export function getClubs() {
     return JSON.parse(localStorage.getItem(CLUBS_KEY) || '[]');
 }
 
+/** Persist clubs array to localStorage. @param {Array<Object>} clubs */
 function saveClubs(clubs) {
     localStorage.setItem(CLUBS_KEY, JSON.stringify(clubs));
 }
 
+/**
+ * Find a club by its unique ID.
+ * @param {string} id - Club ID.
+ * @returns {Object|null} The club object, or null if not found.
+ */
 export function getClubById(id) {
     return getClubs().find(c => c.id === id) || null;
 }
 
+/**
+ * Merge updates into a club record and persist.
+ * @param {string} id - Club ID.
+ * @param {Object} updates - Key/value pairs to merge.
+ */
 function updateClub(id, updates) {
     const clubs = getClubs();
     const idx = clubs.findIndex(c => c.id === id);
@@ -29,21 +46,167 @@ function updateClub(id, updates) {
 }
 
 // ---------- Seed Data ----------
+
+/** Populate localStorage with sample clubs if none exist or if outdated. */
 export function seedClubs() {
     const existing = getClubs();
-    if (existing.length > 0) return;
+    // Re-seed if the clubs are from an older version (no image field)
+    if (existing.length > 0 && existing[0].image !== undefined) return;
+    // Clear old seed data
+    localStorage.removeItem(CLUBS_KEY);
     const seed = [
-        { id: 'club_1', name: 'Sci-Fi Book Lovers', description: 'Discuss your favorite science fiction novels and discover new ones.', category: 'book', isPrivate: false, ownerId: 'system', members: ['system'], posts: [], events: [], recommendations: [], createdAt: Date.now() - 86400000 * 5 },
-        { id: 'club_2', name: 'Indie Game Explorers', description: 'Share and discover indie games that push boundaries.', category: 'game', isPrivate: false, ownerId: 'system', members: ['system'], posts: [], events: [], recommendations: [], createdAt: Date.now() - 86400000 * 3 },
-        { id: 'club_3', name: 'Classic Cinema Club', description: 'A club for fans of films from the golden age of cinema.', category: 'movie', isPrivate: false, ownerId: 'system', members: ['system'], posts: [], events: [], recommendations: [], createdAt: Date.now() - 86400000 * 7 },
-        { id: 'club_4', name: 'Fantasy Readers Guild', description: 'Epic fantasy, urban fantasy, and everything in between.', category: 'book', isPrivate: false, ownerId: 'system', members: ['system'], posts: [], events: [], recommendations: [], createdAt: Date.now() - 86400000 * 2 },
-        { id: 'club_5', name: 'RPG Masters', description: 'For fans of role-playing games old and new.', category: 'game', isPrivate: false, ownerId: 'system', members: ['system'], posts: [], events: [], recommendations: [], createdAt: Date.now() - 86400000 },
-        { id: 'club_6', name: 'Horror Movie Nights', description: 'Weekly horror movie watch parties and discussions.', category: 'movie', isPrivate: false, ownerId: 'system', members: ['system'], posts: [], events: [], recommendations: [], createdAt: Date.now() - 86400000 * 4 },
+        {
+            id: 'club_1', name: 'Lord of the Rings Club',
+            description: 'One ring to rule them all. Discuss Tolkien\'s epic saga, the films, and everything Middle-earth.',
+            category: 'book',
+            image: 'https://covers.openlibrary.org/b/id/14625768-M.jpg',
+            isPrivate: false, ownerId: 'system', members: ['system'],
+            posts: [
+                { id: 'post_s1', title: 'Best book in the trilogy?', content: 'I\'m team Return of the King — the Battle of Pelennor Fields gives me chills every time. What\'s everyone else\'s pick?', author: 'Gandalf_Fan', authorId: 'system', comments: [{ id: 'com_s1', text: 'Two Towers for me. Helm\'s Deep is peak Tolkien!', author: 'RohanRider', authorId: 'system', createdAt: Date.now() - 3600000 }], createdAt: Date.now() - 86400000 }
+            ],
+            events: [
+                { id: 'evt_s1', title: 'Extended Edition Marathon', description: 'All three extended editions back to back — snacks provided!', date: '2026-04-15', time: '10:00', createdBy: 'system', createdAt: Date.now() }
+            ],
+            recommendations: [
+                { id: 'rec_s1', title: 'The Silmarillion', description: 'Tolkien\'s deeper mythology — essential for any LOTR fan.', rating: 5, addedBy: 'Gandalf_Fan', createdAt: Date.now() },
+                { id: 'rec_s2', title: 'The Hobbit', description: 'Where it all began. A lighter, cozy adventure.', rating: 4, addedBy: 'RohanRider', createdAt: Date.now() }
+            ],
+            createdAt: Date.now() - 86400000 * 10
+        },
+        {
+            id: 'club_2', name: 'Halo Fan Club',
+            description: 'Finish the fight! Everything Halo — games, lore, multiplayer strategies, and Spartan builds.',
+            category: 'game',
+            image: 'https://media.rawg.io/media/games/e1f/e1ffbeb1bac25b19749ad285ca29e158.jpg',
+            isPrivate: false, ownerId: 'system', members: ['system'],
+            posts: [
+                { id: 'post_s2', title: 'Halo Infinite - still playing?', content: 'Season 5 brought some great maps. Who\'s still grinding ranked?', author: 'MasterChief117', authorId: 'system', comments: [], createdAt: Date.now() - 86400000 * 2 }
+            ],
+            events: [
+                { id: 'evt_s2', title: 'Halo 3 Custom Games Night', description: 'Fat Kid, Jenga, Trash Compactor — the classics.', date: '2026-04-12', time: '19:00', createdBy: 'system', createdAt: Date.now() }
+            ],
+            recommendations: [
+                { id: 'rec_s3', title: 'Halo: The Fall of Reach', description: 'The novel that started the expanded universe. Must-read for lore fans.', rating: 5, addedBy: 'MasterChief117', createdAt: Date.now() }
+            ],
+            createdAt: Date.now() - 86400000 * 8
+        },
+        {
+            id: 'club_3', name: 'Marvel Cinematic Universe',
+            description: 'Discuss every MCU film, series, and theory. From Iron Man to the Multiverse Saga.',
+            category: 'movie',
+            image: 'https://image.tmdb.org/t/p/w500/ulzhLuWrPK07P1YkdWQLZnQh1JL.jpg',
+            isPrivate: false, ownerId: 'system', members: ['system'],
+            posts: [
+                { id: 'post_s3', title: 'Top 5 MCU films?', content: 'Mine: 1. Endgame 2. Infinity War 3. Winter Soldier 4. Guardians Vol 1 5. No Way Home. Fight me.', author: 'AvengersAssemble', authorId: 'system', comments: [{ id: 'com_s2', text: 'Ragnarok deserves a spot!', author: 'Thor_Odinson', authorId: 'system', createdAt: Date.now() - 7200000 }], createdAt: Date.now() - 86400000 * 3 }
+            ],
+            events: [
+                { id: 'evt_s3', title: 'MCU Phase 7 Discussion', description: 'Breaking down all the new announcements and what they mean.', date: '2026-04-20', time: '18:00', createdBy: 'system', createdAt: Date.now() }
+            ],
+            recommendations: [
+                { id: 'rec_s4', title: 'Avengers: Endgame', description: 'The culmination of 22 films. An absolute masterpiece.', rating: 5, addedBy: 'AvengersAssemble', createdAt: Date.now() }
+            ],
+            createdAt: Date.now() - 86400000 * 14
+        },
+        {
+            id: 'club_4', name: 'Harry Potter Society',
+            description: 'Welcome to Hogwarts! Spells, houses, fan theories, and J.K. Rowling\'s Wizarding World.',
+            category: 'book',
+            image: 'https://covers.openlibrary.org/b/id/10521270-M.jpg',
+            isPrivate: false, ownerId: 'system', members: ['system'],
+            posts: [
+                { id: 'post_s4', title: 'Which house are you?', content: 'Proud Ravenclaw here 🦅 Drop your house and why!', author: 'LunaLovegood', authorId: 'system', comments: [{ id: 'com_s3', text: 'Hufflepuff! Loyalty above all.', author: 'CedricD', authorId: 'system', createdAt: Date.now() - 1800000 }], createdAt: Date.now() - 86400000 }
+            ],
+            events: [],
+            recommendations: [
+                { id: 'rec_s5', title: 'Fantastic Beasts and Where to Find Them', description: 'The textbook, not the movie — a fun companion read.', rating: 4, addedBy: 'LunaLovegood', createdAt: Date.now() }
+            ],
+            createdAt: Date.now() - 86400000 * 6
+        },
+        {
+            id: 'club_5', name: 'Zelda Quest Guild',
+            description: 'From Ocarina of Time to Tears of the Kingdom — all things Legend of Zelda.',
+            category: 'game',
+            image: 'https://media.rawg.io/media/games/556/55684bfd048706f4266d331d70050b37.jpg',
+            isPrivate: false, ownerId: 'system', members: ['system'],
+            posts: [
+                { id: 'post_s5', title: 'TOTK vs BOTW', content: 'Tears of the Kingdom added so much depth but I still love the discovery feeling of Breath of the Wild. Thoughts?', author: 'HyruleHero', authorId: 'system', comments: [], createdAt: Date.now() - 86400000 * 4 }
+            ],
+            events: [
+                { id: 'evt_s5', title: 'Speedrun Challenge', description: 'Any% BOTW race — stream links in the discussion board.', date: '2026-04-18', time: '20:00', createdBy: 'system', createdAt: Date.now() }
+            ],
+            recommendations: [
+                { id: 'rec_s6', title: 'Okami', description: 'If you love Zelda, Okami scratches the same itch beautifully.', rating: 5, addedBy: 'HyruleHero', createdAt: Date.now() }
+            ],
+            createdAt: Date.now() - 86400000 * 5
+        },
+        {
+            id: 'club_6', name: 'Studio Ghibli Fans',
+            description: 'The magical worlds of Miyazaki and Studio Ghibli. Films, art, and soundtracks.',
+            category: 'movie',
+            image: 'https://image.tmdb.org/t/p/w500/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg',
+            isPrivate: false, ownerId: 'system', members: ['system'],
+            posts: [
+                { id: 'post_s6', title: 'Most underrated Ghibli film?', content: 'Everyone talks about Spirited Away and Totoro, but Porco Rosso is criminally underrated. What\'s yours?', author: 'TotoroFriend', authorId: 'system', comments: [{ id: 'com_s4', text: 'The Wind Rises is beautiful and heartbreaking.', author: 'KikiDelivery', authorId: 'system', createdAt: Date.now() - 5400000 }], createdAt: Date.now() - 86400000 * 2 }
+            ],
+            events: [
+                { id: 'evt_s6', title: 'Ghibli Movie Marathon', description: 'Spirited Away → Howl\'s Moving Castle → Princess Mononoke. Bring blankets!', date: '2026-04-25', time: '14:00', createdBy: 'system', createdAt: Date.now() }
+            ],
+            recommendations: [
+                { id: 'rec_s7', title: 'Spirited Away', description: 'The crown jewel of Ghibli. A masterpiece of animation.', rating: 5, addedBy: 'TotoroFriend', createdAt: Date.now() },
+                { id: 'rec_s8', title: 'Princess Mononoke', description: 'Miyazaki\'s epic environmental fantasy.', rating: 5, addedBy: 'KikiDelivery', createdAt: Date.now() }
+            ],
+            createdAt: Date.now() - 86400000 * 12
+        },
+        {
+            id: 'club_7', name: 'Dune Chronicles',
+            description: 'The spice must flow. Frank Herbert\'s epic and the Villeneuve films.',
+            category: 'book',
+            image: 'https://covers.openlibrary.org/b/id/13209396-M.jpg',
+            isPrivate: false, ownerId: 'system', members: ['system'],
+            posts: [],
+            events: [],
+            recommendations: [
+                { id: 'rec_s9', title: 'Dune: Part Two', description: 'Villeneuve\'s adaptation is stunning — possibly better than the book.', rating: 5, addedBy: 'MuadDib', createdAt: Date.now() }
+            ],
+            createdAt: Date.now() - 86400000 * 3
+        },
+        {
+            id: 'club_8', name: 'The Witcher World',
+            description: 'Toss a coin! The Witcher games, books by Sapkowski, and the Netflix series.',
+            category: 'game',
+            image: 'https://media.rawg.io/media/games/618/618c2031a07bbff6b4f611f10b6bcdbc.jpg',
+            isPrivate: false, ownerId: 'system', members: ['system'],
+            posts: [
+                { id: 'post_s8', title: 'Books vs Games vs Show', content: 'Which version of The Witcher is the definitive experience? I say the games — Witcher 3 is a masterpiece.', author: 'GeraltOfRivia', authorId: 'system', comments: [], createdAt: Date.now() - 86400000 }
+            ],
+            events: [],
+            recommendations: [
+                { id: 'rec_s10', title: 'The Last Wish', description: 'Start here if you want to read the books. Short stories that introduce Geralt perfectly.', rating: 5, addedBy: 'GeraltOfRivia', createdAt: Date.now() }
+            ],
+            createdAt: Date.now() - 86400000 * 7
+        },
+        {
+            id: 'club_9', name: 'Christopher Nolan Films',
+            description: 'Inception, Interstellar, The Dark Knight, Oppenheimer — dissecting cinema\'s greatest mind-benders.',
+            category: 'movie',
+            image: 'https://image.tmdb.org/t/p/w500/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg',
+            isPrivate: false, ownerId: 'system', members: ['system'],
+            posts: [
+                { id: 'post_s9', title: 'Nolan\'s best soundtrack moment?', content: 'The docking scene in Interstellar with Hans Zimmer\'s organ... nothing beats it.', author: 'NolanHead', authorId: 'system', comments: [{ id: 'com_s5', text: 'Time from Inception. That brass hit at the end! 🎺', author: 'DreamArchitect', authorId: 'system', createdAt: Date.now() - 3600000 }], createdAt: Date.now() - 86400000 * 2 }
+            ],
+            events: [],
+            recommendations: [
+                { id: 'rec_s11', title: 'Interstellar', description: 'A love letter to space, time, and humanity. Bring tissues.', rating: 5, addedBy: 'NolanHead', createdAt: Date.now() }
+            ],
+            createdAt: Date.now() - 86400000 * 9
+        }
     ];
     saveClubs(seed);
 }
 
 // ---------- Clubs List Page ----------
+
+/** Initialize the clubs listing page: render, search, filter, and create club. */
 export function initClubs() {
     seedClubs();
 
@@ -105,7 +268,7 @@ export function initClubs() {
         });
     }
     if (createClubForm) {
-        createClubForm.addEventListener('submit', e => {
+        createClubForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const user = requireAuth();
             if (!user) return;
@@ -115,12 +278,30 @@ export function initClubs() {
             const category = document.getElementById('clubCategory').value;
             const isPrivate = document.getElementById('clubPrivate').checked;
 
+            // Fetch a cover image from the relevant API based on club category
+            let image = null;
+            try {
+                if (category === 'book') {
+                    const results = await searchBooks(name);
+                    if (results.length && results[0].cover) image = results[0].cover;
+                } else if (category === 'game') {
+                    const results = await searchGames(name);
+                    if (results.length && results[0].image) image = results[0].image;
+                } else if (category === 'movie') {
+                    const results = await searchMovies(name);
+                    if (results.length && results[0].image) image = results[0].image;
+                }
+            } catch (_err) {
+                // Image fetch is best-effort; continue without image
+            }
+
             const clubs = getClubs();
             const newClub = {
                 id: 'club_' + Date.now(),
                 name,
                 description,
                 category,
+                image,
                 isPrivate,
                 ownerId: user.id,
                 members: [user.id],
@@ -146,6 +327,11 @@ export function initClubs() {
 }
 
 // ---------- Club Detail Page ----------
+
+/**
+ * Initialize the single-club detail page: members, posts,
+ * comments, events, and recommendations.
+ */
 export function initClubDetail() {
     seedClubs();
 
@@ -174,6 +360,15 @@ export function initClubDetail() {
     if (badgeEl) {
         const icon = club.category === 'book' ? '📚 Book' : club.category === 'game' ? '🎮 Game' : '🎬 Movie';
         badgeEl.textContent = icon;
+    }
+
+    // --- Club banner image ---
+    const clubHeader = document.querySelector('.club-header');
+    if (clubHeader && club.image) {
+        const banner = document.createElement('div');
+        banner.className = 'club-banner';
+        banner.innerHTML = `<img src="${escapeHTML(club.image)}" alt="${escapeHTML(club.name)} banner" loading="lazy">`;
+        clubHeader.parentNode.insertBefore(banner, clubHeader);
     }
 
     // --- Join / Leave ---
