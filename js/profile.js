@@ -32,6 +32,11 @@ export function initProfile() {
     if (favGameEl) favGameEl.textContent = user.favGame || 'Not set';
     if (favMovieEl) favMovieEl.textContent = user.favMovie || 'Not set';
 
+    // Render favorite images
+    renderFavImage('favBookImage', user.favBookImage, '📚');
+    renderFavImage('favGameImage', user.favGameImage, '🎮');
+    renderFavImage('favMovieImage', user.favMovieImage, '🎬');
+
     // --- My Clubs ---
     function renderMyClubs() {
         const myClubsEl = document.getElementById('myClubsList');
@@ -120,9 +125,14 @@ export function initProfile() {
     }
 
     // --- API Suggestions for Media ---
-    setupMediaSearch('editFavBook', 'bookSuggestions', searchBooks);
-    setupMediaSearch('editFavGame', 'gameSuggestions', searchGames);
-    setupMediaSearch('editFavMovie', 'movieSuggestions', searchMovies);
+    const selectedImages = {
+        book: user.favBookImage || null,
+        game: user.favGameImage || null,
+        movie: user.favMovieImage || null
+    };
+    setupMediaSearch('editFavBook', 'bookSuggestions', searchBooks, 'book', selectedImages);
+    setupMediaSearch('editFavGame', 'gameSuggestions', searchGames, 'game', selectedImages);
+    setupMediaSearch('editFavMovie', 'movieSuggestions', searchMovies, 'movie', selectedImages);
 
     // --- Save Profile ---
     if (editForm) {
@@ -144,7 +154,10 @@ export function initProfile() {
                 avatarColor: newColor,
                 favBook: newBook,
                 favGame: newGame,
-                favMovie: newMovie
+                favMovie: newMovie,
+                favBookImage: selectedImages.book,
+                favGameImage: selectedImages.game,
+                favMovieImage: selectedImages.movie
             });
 
             showToast('Profile updated!', 'success');
@@ -158,12 +171,30 @@ export function initProfile() {
 // ---------- Media Search Helper ----------
 
 /**
- * Wire up a text input to fetch API suggestions as the user types.
+ * Render a favorite image into a container element.
+ * @param {string} elementId - DOM ID of the image container.
+ * @param {string|null} imageUrl - Image URL or null.
+ * @param {string} fallbackIcon - Emoji fallback when no image.
+ */
+function renderFavImage(elementId, imageUrl, fallbackIcon) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    if (imageUrl) {
+        el.innerHTML = `<img src="${escapeHTML(imageUrl)}" alt="Favorite media" loading="lazy">`;
+    } else {
+        el.innerHTML = `<div class="media-icon" aria-hidden="true">${fallbackIcon}</div>`;
+    }
+}
+
+/**
+ * Wire up a text input to fetch API suggestions with images as the user types.
  * @param {string} inputId - DOM ID of the text input.
  * @param {string} suggestionsId - DOM ID of the suggestions container.
- * @param {Function} searchFn - Async search function returning array of {title} objects.
+ * @param {Function} searchFn - Async search function.
+ * @param {string} mediaType - 'book', 'game', or 'movie'.
+ * @param {Object} selectedImages - Shared object to store selected image URLs.
  */
-function setupMediaSearch(inputId, suggestionsId, searchFn) {
+function setupMediaSearch(inputId, suggestionsId, searchFn, mediaType, selectedImages) {
     const input = document.getElementById(inputId);
     const suggestionsEl = document.getElementById(suggestionsId);
     if (!input || !suggestionsEl) return;
@@ -183,14 +214,19 @@ function setupMediaSearch(inputId, suggestionsId, searchFn) {
                     suggestionsEl.classList.remove('open');
                     return;
                 }
-                suggestionsEl.innerHTML = results.slice(0, 5).map(r =>
-                    `<div class="api-suggestion-item" data-value="${escapeHTML(r.title)}">${escapeHTML(r.title)}</div>`
-                ).join('');
+                suggestionsEl.innerHTML = results.slice(0, 5).map(r => {
+                    const img = r.cover || r.image || null;
+                    return `<div class="api-suggestion-item has-image" data-value="${escapeHTML(r.title)}" data-image="${img ? escapeHTML(img) : ''}">
+                        ${img ? `<img src="${escapeHTML(img)}" alt="" loading="lazy" class="suggestion-thumb">` : ''}
+                        <span class="suggestion-text">${escapeHTML(r.title)}</span>
+                    </div>`;
+                }).join('');
                 suggestionsEl.classList.add('open');
 
                 suggestionsEl.querySelectorAll('.api-suggestion-item').forEach(item => {
                     item.addEventListener('click', () => {
                         input.value = item.dataset.value;
+                        selectedImages[mediaType] = item.dataset.image || null;
                         suggestionsEl.classList.remove('open');
                     });
                 });
@@ -198,6 +234,11 @@ function setupMediaSearch(inputId, suggestionsId, searchFn) {
                 suggestionsEl.classList.remove('open');
             }
         }, 400);
+    });
+
+    // Clear image if user manually changes text after selecting
+    input.addEventListener('keydown', () => {
+        selectedImages[mediaType] = null;
     });
 
     // Close suggestions on blur

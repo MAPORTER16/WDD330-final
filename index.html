@@ -74,46 +74,101 @@
 
     <!-- Auth Modal -->
     <div class="modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
-        <div class="modal">
+        <div class="modal auth-modal">
             <button class="modal-close" id="modalClose" aria-label="Close dialog">&times;</button>
             <!-- Login Form -->
             <div id="loginForm" class="auth-form">
-                <h2 id="authModalTitle">Log In</h2>
+                <div class="auth-header">
+                    <span class="auth-logo" aria-hidden="true">🎬📚🎮</span>
+                    <h2 id="authModalTitle">Welcome Back</h2>
+                    <p class="auth-subtitle">Log in to your MediaClub account</p>
+                </div>
                 <form id="loginFormEl">
                     <div class="form-group">
                         <label for="loginEmail">Email</label>
-                        <input type="email" id="loginEmail" required>
+                        <input type="email" id="loginEmail" required placeholder="you@example.com">
                     </div>
                     <div class="form-group">
                         <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" required>
+                        <div class="password-wrapper">
+                            <input type="password" id="loginPassword" required placeholder="Enter your password">
+                            <button type="button" class="password-toggle" aria-label="Show password"
+                                data-target="loginPassword">👁️</button>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary btn-full">Log In</button>
                     <p class="form-switch">Don't have an account? <a href="#" id="showRegister">Sign Up</a></p>
                     <p class="form-guest"><a href="#" id="guestLoginBtn">Continue as Guest</a></p>
                 </form>
-                <div id="registerForm" class="auth-form" style="display:none;">
-                    <h2>Sign Up</h2>
-                    <form id="registerFormEl">
-                        <div class="form-group">
-                            <label for="regUsername">Username</label>
-                            <input type="text" id="regUsername" required minlength="3" maxlength="30">
-                        </div>
-                        <div class="form-group">
-                            <label for="regEmail">Email</label>
-                            <input type="email" id="regEmail" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="regPassword">Password</label>
-                            <input type="password" id="regPassword" required minlength="6">
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full">Sign Up</button>
-                        <p class="form-switch">Already have an account? <a href="#" id="showLogin">Log In</a></p>
-                        <p class="form-guest"><a href="#" id="guestRegisterBtn">Continue as Guest</a></p>
-                    </form>
+            </div>
+            <div id="registerForm" class="auth-form" style="display:none;">
+                <div class="auth-header">
+                    <span class="auth-logo" aria-hidden="true">🎬📚🎮</span>
+                    <h2>Create Account</h2>
+                    <p class="auth-subtitle">Join MediaClub and connect with fans</p>
                 </div>
+                <form id="registerFormEl">
+                    <div class="form-group">
+                        <label for="regUsername">Username</label>
+                        <input type="text" id="regUsername" required minlength="3" maxlength="30"
+                            placeholder="Pick a username">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email</label>
+                        <input type="email" id="regEmail" required placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="regPassword" required minlength="6"
+                                placeholder="At least 6 characters">
+                            <button type="button" class="password-toggle" aria-label="Show password"
+                                data-target="regPassword">👁️</button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <span class="strength-label" id="strengthLabel"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPasswordConfirm">Confirm Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="regPasswordConfirm" required minlength="6"
+                                placeholder="Re-enter password">
+                            <button type="button" class="password-toggle" aria-label="Show password"
+                                data-target="regPasswordConfirm">👁️</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Choose an avatar color</label>
+                        <div class="avatar-picker" id="avatarPicker">
+                            <button type="button" class="avatar-option selected" data-color="#2D6CDF"
+                                style="background:#2D6CDF" aria-label="Blue avatar"></button>
+                            <button type="button" class="avatar-option" data-color="#6C4AB6" style="background:#6C4AB6"
+                                aria-label="Purple avatar"></button>
+                            <button type="button" class="avatar-option" data-color="#27ae60" style="background:#27ae60"
+                                aria-label="Green avatar"></button>
+                            <button type="button" class="avatar-option" data-color="#FF9F43" style="background:#FF9F43"
+                                aria-label="Orange avatar"></button>
+                            <button type="button" class="avatar-option" data-color="#e74c3c" style="background:#e74c3c"
+                                aria-label="Red avatar"></button>
+                            <button type="button" class="avatar-option" data-color="#e84393" style="background:#e84393"
+                                aria-label="Pink avatar"></button>
+                            <button type="button" class="avatar-option" data-color="#00b894" style="background:#00b894"
+                                aria-label="Teal avatar"></button>
+                            <button type="button" class="avatar-option" data-color="#fdcb6e" style="background:#fdcb6e"
+                                aria-label="Yellow avatar"></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+                    <p class="form-switch">Already have an account? <a href="#" id="showLogin">Log In</a></p>
+                    <p class="form-guest"><a href="#" id="guestRegisterBtn">Continue as Guest</a></p>
+                </form>
+            </div>
 
-                <script src="js/app.js" type="module"></script>
+            <script src="js/app.js" type="module"></script>
 </body>
 
 </html>

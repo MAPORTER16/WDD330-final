@@ -49,6 +49,7 @@
             <div class="club-header-left">
                 <h1 id="clubTitle">Club Name</h1>
                 <span class="club-category-badge" id="clubCategoryBadge">📚 Book</span>
+                <span class="member-count-badge" id="memberCountBadge">0 members</span>
             </div>
             <div class="club-header-actions">
                 <button class="btn btn-secondary" id="joinBtn">Join</button>
@@ -71,11 +72,15 @@
                 <section class="club-section">
                     <h3>Discussion Board</h3>
                     <div class="post-composer" id="postComposer">
-                        <label for="newPostContent" class="sr-only">Post content</label>
-                        <textarea id="newPostContent" placeholder="New Post..." rows="3" maxlength="1000"></textarea>
                         <label for="newPostTitle" class="sr-only">Post title</label>
                         <input type="text" id="newPostTitle" placeholder="Post title..." maxlength="100">
-                        <button class="btn btn-primary" id="submitPost">Post</button>
+                        <label for="newPostContent" class="sr-only">Post content</label>
+                        <textarea id="newPostContent" placeholder="Share your thoughts with the club..." rows="3"
+                            maxlength="1000"></textarea>
+                        <div class="post-composer-footer">
+                            <span class="post-char-count" id="postCharCount">0/1000</span>
+                            <button class="btn btn-primary" id="submitPost">Post</button>
+                        </div>
                     </div>
                     <div class="posts-list" id="postsList">
                         <!-- Rendered by JS -->
@@ -102,6 +107,14 @@
                         <!-- Rendered by JS -->
                     </div>
                 </section>
+                <!-- Past Events -->
+                <section class="club-section" id="pastEventsSection" style="display:none;">
+                    <h3 class="past-events-toggle" id="pastEventsToggle">Past Events <span class="toggle-arrow">▸</span>
+                    </h3>
+                    <div class="events-list past-events-list" id="pastEventsList" style="display:none;">
+                        <!-- Rendered by JS -->
+                    </div>
+                </section>
             </div>
         </div>
     </main>
@@ -122,12 +135,18 @@
                     <textarea id="eventDescription" rows="3" maxlength="300"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="eventDate">Date</label>
-                    <input type="date" id="eventDate" required>
+                    <label for="eventLocation">Location</label>
+                    <input type="text" id="eventLocation" placeholder="e.g. Discord, Room 204, Online" maxlength="100">
                 </div>
-                <div class="form-group">
-                    <label for="eventTime">Time</label>
-                    <input type="time" id="eventTime" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Date</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTime">Time</label>
+                        <input type="time" id="eventTime" required>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary btn-full">Create Event</button>
             </form>
@@ -170,6 +189,7 @@
         <div class="modal">
             <button class="modal-close" id="commentModalClose" aria-label="Close dialog">&times;</button>
             <h2 id="commentModalTitle">Comments</h2>
+            <p class="comment-post-title" id="commentPostTitle"></p>
             <div class="comments-list" id="commentsList"></div>
             <form id="commentForm">
                 <div class="form-group">

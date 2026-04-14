@@ -72,32 +72,87 @@
     <!-- Create Club Modal -->
     <div class="modal-overlay" id="createClubModal" style="display:none;" role="dialog" aria-modal="true"
         aria-labelledby="createClubTitle">
-        <div class="modal">
+        <div class="modal modal-wide">
             <button class="modal-close" id="createClubClose" aria-label="Close dialog">&times;</button>
             <h2 id="createClubTitle">Create a New Club</h2>
             <form id="createClubForm">
-                <div class="form-group">
-                    <label for="clubName">Club Name</label>
-                    <input type="text" id="clubName" required maxlength="60">
+                <!-- Step 1: Basic Info -->
+                <div class="create-step" id="createStep1">
+                    <p class="step-label">Step 1 of 3 — Basic Info</p>
+                    <div class="form-group">
+                        <label for="clubName">Club Name</label>
+                        <input type="text" id="clubName" required maxlength="60"
+                            placeholder="e.g. Lord of the Rings Club">
+                    </div>
+                    <div class="form-group">
+                        <label for="clubDescription">Description</label>
+                        <textarea id="clubDescription" rows="3" required maxlength="300"
+                            placeholder="What is this club about? What will members discuss?"></textarea>
+                        <span class="char-count" id="descCharCount">0/300</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="clubCategory">Category</label>
+                        <select id="clubCategory" required>
+                            <option value="book">📚 Book Club</option>
+                            <option value="game">🎮 Game Club</option>
+                            <option value="movie">🎬 Movie Club</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-full" id="toStep2">Next: Choose Cover Image
+                        →</button>
                 </div>
-                <div class="form-group">
-                    <label for="clubDescription">Description</label>
-                    <textarea id="clubDescription" rows="3" required maxlength="300"></textarea>
+
+                <!-- Step 2: Cover Image -->
+                <div class="create-step" id="createStep2" style="display:none;">
+                    <p class="step-label">Step 2 of 3 — Cover Image</p>
+                    <div class="form-group">
+                        <label for="imageSearchInput">Search for a cover image</label>
+                        <div class="image-search-bar">
+                            <input type="text" id="imageSearchInput" placeholder="Type to search images...">
+                            <button type="button" class="btn btn-secondary btn-sm" id="imageSearchBtn">🔍
+                                Search</button>
+                        </div>
+                    </div>
+                    <div class="image-results" id="imageResults">
+                        <p class="image-results-hint">Search above to find cover images from our API, or enter a custom
+                            URL below.</p>
+                    </div>
+                    <div class="image-preview-area" id="imagePreviewArea" style="display:none;">
+                        <p class="preview-label">Selected Image:</p>
+                        <img id="imagePreview" src="" alt="Selected cover preview">
+                        <button type="button" class="btn btn-danger btn-sm" id="clearImage">✕ Remove</button>
+                    </div>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label for="customImageUrl">Or paste a custom image URL</label>
+                        <input type="url" id="customImageUrl" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div class="step-nav">
+                        <button type="button" class="btn btn-secondary" id="backToStep1">← Back</button>
+                        <button type="button" class="btn btn-primary" id="toStep3">Next: Review →</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="clubCategory">Category</label>
-                    <select id="clubCategory" required>
-                        <option value="book">📚 Book</option>
-                        <option value="game">🎮 Game</option>
-                        <option value="movie">🎬 Movie</option>
-                    </select>
+
+                <!-- Step 3: Review & Create -->
+                <div class="create-step" id="createStep3" style="display:none;">
+                    <p class="step-label">Step 3 of 3 — Review & Create</p>
+                    <div class="club-preview-card">
+                        <div class="club-preview-image" id="previewImage"></div>
+                        <div class="club-preview-body">
+                            <span class="club-card-badge" id="previewBadge"></span>
+                            <h3 id="previewName"></h3>
+                            <p id="previewDesc"></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="clubPrivate"> Make this club private
+                        </label>
+                    </div>
+                    <div class="step-nav">
+                        <button type="button" class="btn btn-secondary" id="backToStep2">← Back</button>
+                        <button type="submit" class="btn btn-primary">🚀 Create Club</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="clubPrivate"> Make this club private
-                    </label>
-                </div>
-                <button type="submit" class="btn btn-primary btn-full">Create Club</button>
             </form>
         </div>
     </div>

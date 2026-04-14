@@ -141,6 +141,25 @@ export function initAuth() {
         });
     }
 
+    // Show/hide password toggles
+    initPasswordToggles();
+
+    // Password strength indicator
+    initPasswordStrength();
+
+    // Avatar color picker
+    let selectedAvatarColor = '#2D6CDF';
+    const avatarPicker = document.getElementById('avatarPicker');
+    if (avatarPicker) {
+        avatarPicker.addEventListener('click', (e) => {
+            const btn = e.target.closest('.avatar-option');
+            if (!btn) return;
+            avatarPicker.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedAvatarColor = btn.dataset.color;
+        });
+    }
+
     // Register
     if (registerFormEl) {
         registerFormEl.addEventListener('submit', e => {
@@ -148,6 +167,8 @@ export function initAuth() {
             const username = document.getElementById('regUsername').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regPasswordConfirm');
+            const confirm = confirmPassword ? confirmPassword.value : password;
 
             // Remove previous errors
             registerFormEl.querySelectorAll('.form-error').forEach(el => el.remove());
@@ -164,6 +185,10 @@ export function initAuth() {
                 appendError(registerFormEl, 'Password must be at least 6 characters.');
                 return;
             }
+            if (password !== confirm) {
+                appendError(registerFormEl, 'Passwords do not match.');
+                return;
+            }
 
             const users = getUsers();
             if (users.some(u => u.email === email)) {
@@ -176,7 +201,7 @@ export function initAuth() {
                 username,
                 email,
                 password, // In a real app this would be hashed server-side
-                avatarColor: '#2D6CDF',
+                avatarColor: selectedAvatarColor,
                 favBook: '',
                 favGame: '',
                 favMovie: '',
@@ -263,4 +288,57 @@ export function requireAuth() {
         return null;
     }
     return user;
+}
+
+// ---------- Password Helpers ----------
+
+/** Set up show/hide password toggle buttons. */
+function initPasswordToggles() {
+    document.querySelectorAll('.password-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = document.getElementById(btn.dataset.target);
+            if (!input) return;
+            const showing = input.type === 'text';
+            input.type = showing ? 'password' : 'text';
+            btn.textContent = showing ? '👁️' : '🙈';
+            btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+        });
+    });
+}
+
+/** Set up the password strength meter on the registration form. */
+function initPasswordStrength() {
+    const passInput = document.getElementById('regPassword');
+    const fill = document.getElementById('strengthFill');
+    const label = document.getElementById('strengthLabel');
+    if (!passInput || !fill || !label) return;
+
+    passInput.addEventListener('input', () => {
+        const val = passInput.value;
+        const { score, text, color } = getPasswordStrength(val);
+        fill.style.width = `${score}%`;
+        fill.style.background = color;
+        label.textContent = val.length ? text : '';
+        label.style.color = color;
+    });
+}
+
+/**
+ * Calculate a simple password strength score.
+ * @param {string} pw - Password string.
+ * @returns {{score: number, text: string, color: string}}
+ */
+function getPasswordStrength(pw) {
+    let score = 0;
+    if (pw.length >= 6) score += 20;
+    if (pw.length >= 10) score += 20;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score += 20;
+    if (/\d/.test(pw)) score += 20;
+    if (/[^a-zA-Z0-9]/.test(pw)) score += 20;
+
+    if (score <= 20) return { score, text: 'Weak', color: '#e74c3c' };
+    if (score <= 40) return { score, text: 'Fair', color: '#FF9F43' };
+    if (score <= 60) return { score, text: 'Good', color: '#f1c40f' };
+    if (score <= 80) return { score, text: 'Strong', color: '#2ecc71' };
+    return { score, text: 'Very Strong', color: '#27ae60' };
 }
